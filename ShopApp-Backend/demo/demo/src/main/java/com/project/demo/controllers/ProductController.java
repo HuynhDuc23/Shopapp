@@ -37,9 +37,9 @@ public class ProductController {
     public ResponseEntity<?> getProductById(@PathVariable("id")  int productId , BindingResult bindingResult){
         return ResponseEntity.status(HttpStatus.CREATED).body(String.format("product with %d",productId));
     }
-    @PostMapping(consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    @PostMapping(value = "/", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public ResponseEntity<?> createProduct(
-            @Valid @RequestBody ProductDTO productDTO ,
+            @Valid @ModelAttribute ProductDTO productDTO ,
             BindingResult bindingResult) throws Exception {
         List<String> listErr = new ArrayList<>();
         try {
@@ -47,24 +47,30 @@ public class ProductController {
                 listErr = bindingResult.getFieldErrors().stream().map(FieldError::getDefaultMessage).toList();
                 return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(listErr);
             }
-            MultipartFile file = productDTO.getFile();
-            // truong hop neu trong request ho khong dua file vao
-            if (file != null && !file.isEmpty()) {
-                // kiem tra kich thuoc va dinh dang cua file
-                if (file.getSize() > 10 * 1024 * 1024) {
-                    return ResponseEntity.status(HttpStatus.PAYLOAD_TOO_LARGE).body("File is too large! Maximum size is 10MB");
+            List<MultipartFile> files = productDTO.getFiles();
+            files = files == null ? new ArrayList<MultipartFile>() : files ;
+            for(MultipartFile file : files){
+//                if(file.getSize()==0){
+//                    continue;
+//                }
+                // truong hop neu trong request ho khong dua file vao
+                if (file != null && !file.isEmpty()) {
+                    // kiem tra kich thuoc va dinh dang cua file
+                    if (file.getSize() > 10 * 1024 * 1024) {
+                        return ResponseEntity.status(HttpStatus.PAYLOAD_TOO_LARGE).body("File is too large! Maximum size is 10MB");
+                    }
+                    // kiem tra dinh dang file
+                    String contentType = file.getContentType();
+                    if (contentType == null || !contentType.startsWith("image/")) {
+                        return ResponseEntity.status(HttpStatus.UNSUPPORTED_MEDIA_TYPE).body("File must be an image");
+                    }
+                    String fileName = storeFile(file);
                 }
-                // kiem tra dinh dang file
-                String contentType = file.getContentType();
-                if (contentType == null || !contentType.startsWith("image/")) {
-                    return ResponseEntity.status(HttpStatus.UNSUPPORTED_MEDIA_TYPE).body("File must be an image");
-                }
-                String fileName = storeFile(file);
             }
         } catch (Exception ex) {
             throw new Exception(ex.getMessage());
         }
-        return ResponseEntity.status(HttpStatus.CREATED).body(productDTO);
+        return ResponseEntity.status(HttpStatus.CREATED).body("Created");
     }
     private String storeFile(MultipartFile file) throws IOException {
         String fileName = StringUtils.cleanPath(file.getOriginalFilename()); // lay ra file name
