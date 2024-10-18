@@ -1,9 +1,12 @@
 package com.project.demo.controllers;
 
 import com.project.demo.dtos.requests.ProductDTO;
+import com.project.demo.models.Product;
+import com.project.demo.services.IProductService;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotNull;
+import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -25,12 +28,15 @@ import java.util.UUID;
 
 @RestController
 @RequestMapping("${api.prefix}/product")
+@RequiredArgsConstructor
 public class ProductController {
+    private final IProductService productService;
 
     @GetMapping("/")
     // http://localhost:8080/api/v1/product/
     public ResponseEntity<?> getAllProduct(){
-        return ResponseEntity.status(HttpStatus.CREATED).body("Get All Products");
+        List<Product> products = this.productService.products();
+        return ResponseEntity.status(HttpStatus.CREATED).body(products);
     }
     @GetMapping("/{id}")
     // http://localhost:8080/api/v1/product/1
