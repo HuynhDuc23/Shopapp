@@ -18,7 +18,7 @@ import java.util.List;
 public class CategoryController {
     private final ICategoryService  iCategoryService ;
 
-    @PostMapping("")  // http://localhost:8080/api/v1/categories
+    @PostMapping("post")  // http://localhost:8080/api/v1/categories
     public ResponseEntity<?> createCategory(@RequestBody @Valid CategoryDTO categoryDTO , BindingResult bindingResult) {
         if(bindingResult.hasErrors()){
             List<String> mess = (List<String>) bindingResult.getFieldErrors().stream().map(errMessager ->errMessager.getDefaultMessage()).toList();

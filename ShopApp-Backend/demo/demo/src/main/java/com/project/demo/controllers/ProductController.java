@@ -36,7 +36,11 @@ public class ProductController {
     // http://localhost:8080/api/v1/product/
     public ResponseEntity<?> getAllProduct(){
         List<Product> products = this.productService.products();
-        return ResponseEntity.status(HttpStatus.CREATED).body(products);
+        for(Product product : products){
+            System.out.println(product.getCategory());
+        }
+        List<com.project.demo.dtos.responses.ProductDTO> results = products.stream().map(p-> new com.project.demo.dtos.responses.ProductDTO(p.getName(),p.getPrice() , p.getThumbnail() , p.getDescription() , p.getCategory().getName())).toList();
+        return ResponseEntity.status(HttpStatus.CREATED).body(results);
     }
     @GetMapping("/{id}")
     // http://localhost:8080/api/v1/product/1

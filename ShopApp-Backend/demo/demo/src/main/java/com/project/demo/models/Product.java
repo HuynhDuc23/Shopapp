@@ -24,7 +24,7 @@ public class Product extends BaseEntity {
     private String thumbnail;
     @Column(name = "description")
     private String description;
-    @ManyToOne(fetch = FetchType.EAGER , cascade = {
+    @ManyToOne(fetch = FetchType.LAZY , cascade = {
             CascadeType.PERSIST,
             CascadeType.MERGE,
             CascadeType.DETACH,
